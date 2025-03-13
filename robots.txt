@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Disallow backend files
+Disallow: /forms/
+Disallow: /.git/
+Disallow: /.github/
+Disallow: /.htaccess
+Disallow: /DEPLOYMENT.md
