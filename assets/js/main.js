@@ -3,33 +3,85 @@ document.addEventListener("DOMContentLoaded", function() {
   'use strict';
 
   // Preloader Animation
-  const loader = document.querySelector('.loader');
-  const counter = document.querySelector('.counter');
-  const progressBar = document.querySelector('.loading-bar-inner');
+  // Update the preloader code at the beginning of main.js:
 
-  let count = 0;
-  const loaderDuration = 3000; // 3 seconds
-  const interval = loaderDuration / 100;
+// Preloader Animation
+const loader = document.querySelector('.loader');
+const counter = document.querySelector('.counter');
+const progressBar = document.querySelector('.loading-bar-inner');
 
-  const loaderTimer = setInterval(() => {
-    count++;
-    counter.textContent = count;
-    progressBar.style.width = `${count}%`;
+let count = 0;
+const loaderDuration = 3000; // 3 seconds
+const interval = loaderDuration / 100;
+
+// Add a safety timeout to ensure the loader doesn't get stuck
+const safetyTimeout = setTimeout(() => {
+  if (loader.style.display !== 'none') {
+    gsap.to(loader, {
+      duration: 0.8,
+      opacity: 0,
+      pointerEvents: 'none',
+      onComplete: () => {
+        loader.style.display = 'none';
+        // Start page animations
+        initPageAnimations();
+      }
+    });
+  }
+}, loaderDuration + 2000); // Wait 5 seconds total before forcing completion
+
+const loaderTimer = setInterval(() => {
+  count++;
+  counter.textContent = count;
+  progressBar.style.width = `${count}%`;
+  
+  if (count >= 100) {
+    clearInterval(loaderTimer);
+    clearTimeout(safetyTimeout); // Clear the safety timeout since we completed normally
+    gsap.to(loader, {
+      duration: 0.8,
+      opacity: 0,
+      pointerEvents: 'none',
+      onComplete: () => {
+        loader.style.display = 'none';
+        // Start page animations
+        initPageAnimations();
+      }
+    });
+  }
+}, interval);
+
+// Add a window load event to ensure resources are fully loaded
+window.addEventListener('load', function() {
+  // If the counter hasn't reached 100 yet, speed it up
+  if (count < 100) {
+    // Speed up to complete in 1 second
+    clearInterval(loaderTimer);
+    const remainingCount = 100 - count;
+    const fastInterval = 1000 / remainingCount;
     
-    if (count >= 100) {
-      clearInterval(loaderTimer);
-      gsap.to(loader, {
-        duration: 0.8,
-        opacity: 0,
-        pointerEvents: 'none',
-        onComplete: () => {
-          loader.style.display = 'none';
-          // Start page animations
-          initPageAnimations();
-        }
-      });
-    }
-  }, interval);
+    const fastTimer = setInterval(() => {
+      count++;
+      counter.textContent = count;
+      progressBar.style.width = `${count}%`;
+      
+      if (count >= 100) {
+        clearInterval(fastTimer);
+        clearTimeout(safetyTimeout);
+        gsap.to(loader, {
+          duration: 0.8,
+          opacity: 0,
+          pointerEvents: 'none',
+          onComplete: () => {
+            loader.style.display = 'none';
+            // Start page animations
+            initPageAnimations();
+          }
+        });
+      }
+    }, fastInterval);
+  }
+});
 
   // Initialize all page animations
   function initPageAnimations() {
@@ -215,10 +267,20 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Initialize Locomotive Scroll
-  function initSmoothScroll() {
+  // In the initSmoothScroll function in main.js, update it with proper error handling:
+
+function initSmoothScroll() {
+  try {
+    // Check if the scroll container exists
+    const scrollContainer = document.querySelector('[data-scroll-container]');
+    if (!scrollContainer) {
+      console.error('Scroll container not found');
+      return;
+    }
+
     // Initialize smooth scroll
     const scroll = new LocomotiveScroll({
-      el: document.querySelector('[data-scroll-container]'),
+      el: scrollContainer,
       smooth: true,
       multiplier: 1,
       lerp: 0.1,
@@ -260,9 +322,27 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     });
 
+    // Add a global update method to refresh Locomotive Scroll
+    window.updateScroll = function() {
+      scroll.update();
+    };
+
     // Add the scroll instance to window for global access
     window.locomotiveScroll = scroll;
+    
+    // Add a window resize handler to update scroll
+    window.addEventListener('resize', () => {
+      // Debounce the resize event
+      clearTimeout(window.resizeTimer);
+      window.resizeTimer = setTimeout(() => {
+        scroll.update();
+      }, 250);
+    });
+  } catch (error) {
+    console.error('Error initializing Locomotive Scroll:', error);
+    // Fallback to default scrolling if Locomotive fails
   }
+}
 
   // Update animations when scrolling
   function updateAnimationsOnScroll(instance) {
@@ -587,44 +667,82 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     
     // Form submission
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      // Basic validation
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const subject = document.getElementById('subject').value;
-      const message = document.getElementById('message').value;
-      
-      if (!name || !email || !subject || !message) {
-        showFormMessage('Please fill in all fields', 'error');
-        return;
-      }
-      
-      // Simple email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showFormMessage('Please enter a valid email address', 'error');
-        return;
-      }
-      
-      // Show loading
-      showFormMessage('Sending your message...', 'loading');
-      
-      try {
-        // Simulate form submission (replace with actual AJAX call)
-        await simulateFormSubmission();
-        
-        // Clear form
-        form.reset();
-        
-        // Show success message
-        showFormMessage('Your message has been sent successfully!', 'success');
-      } catch (error) {
-        // Show error message
-        showFormMessage('Failed to send message. Please try again later.', 'error');
+    // In the initSmoothScroll function in main.js, update it with proper error handling:
+
+function initSmoothScroll() {
+  try {
+    // Check if the scroll container exists
+    const scrollContainer = document.querySelector('[data-scroll-container]');
+    if (!scrollContainer) {
+      console.error('Scroll container not found');
+      return;
+    }
+
+    // Initialize smooth scroll
+    const scroll = new LocomotiveScroll({
+      el: scrollContainer,
+      smooth: true,
+      multiplier: 1,
+      lerp: 0.1,
+      smartphone: {
+        smooth: true
+      },
+      tablet: {
+        smooth: true
       }
     });
+
+    // Update scroll position for new content
+    scroll.on('scroll', (instance) => {
+      // Update animations based on scroll
+      updateAnimationsOnScroll(instance);
+    });
+
+    // Handle anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        
+        if (targetId === '#header') {
+          scroll.scrollTo(0);
+        } else {
+          const target = document.querySelector(targetId);
+          if (target) {
+            scroll.scrollTo(target);
+          }
+        }
+        
+        // Close mobile nav if open
+        if (document.body.classList.contains('mobile-nav-active')) {
+          document.body.classList.remove('mobile-nav-active');
+          document.querySelector('.nav-overlay').classList.remove('active');
+        }
+      });
+    });
+
+    // Add a global update method to refresh Locomotive Scroll
+    window.updateScroll = function() {
+      scroll.update();
+    };
+
+    // Add the scroll instance to window for global access
+    window.locomotiveScroll = scroll;
+    
+    // Add a window resize handler to update scroll
+    window.addEventListener('resize', () => {
+      // Debounce the resize event
+      clearTimeout(window.resizeTimer);
+      window.resizeTimer = setTimeout(() => {
+        scroll.update();
+      }, 250);
+    });
+  } catch (error) {
+    console.error('Error initializing Locomotive Scroll:', error);
+    // Fallback to default scrolling if Locomotive fails
+  }
+}
     
     // Helper function to show form messages
     function showFormMessage(message, type) {
@@ -677,105 +795,111 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Mobile navigation toggle
-  function initMobileNav() {
-    const navToggle = document.querySelector('.nav-toggle');
-    const navOverlay = document.querySelector('.nav-overlay');
-    
-    navToggle.addEventListener('click', () => {
-      navToggle.classList.toggle('active');
-      navOverlay.classList.toggle('active');
-      document.body.classList.toggle('mobile-nav-active');
-      
-      // Animate the toggle button
-      const bars = navToggle.querySelectorAll('.nav-toggle-bar');
-      
-      if (navToggle.classList.contains('active')) {
-        // Animate to X
-        gsap.to(bars[0], {
-          rotation: 45,
-          y: 8,
-          duration: 0.3
-        });
-        
-        gsap.to(bars[1], {
-          opacity: 0,
-          duration: 0.3
-        });
-        
-        gsap.to(bars[2], {
-          rotation: -45,
-          y: -8,
-          duration: 0.3
-        });
-      } else {
-        // Animate back to hamburger
-        gsap.to(bars[0], {
-          rotation: 0,
-          y: 0,
-          duration: 0.3
-        });
-        
-        gsap.to(bars[1], {
-          opacity: 1,
-          duration: 0.3
-        });
-        
-        gsap.to(bars[2], {
-          rotation: 0,
-          y: 0,
-          duration: 0.3
-        });
-      }
-      
-      // Animate nav links
-      const navLinks = navOverlay.querySelectorAll('a');
-      
-      if (navOverlay.classList.contains('active')) {
-        gsap.fromTo(navLinks, 
-          {
-            opacity: 0,
-            y: 20
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.3,
-            stagger: 0.1,
-            delay: 0.2
-          }
-        );
-      }
-    });
-    
-    // Close nav when clicking on a link
-    navOverlay.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        navToggle.classList.remove('active');
-        navOverlay.classList.remove('active');
-        document.body.classList.remove('mobile-nav-active');
-        
-        // Animate back to hamburger
-        const bars = navToggle.querySelectorAll('.nav-toggle-bar');
-        
-        gsap.to(bars[0], {
-          rotation: 0,
-          y: 0,
-          duration: 0.3
-        });
-        
-        gsap.to(bars[1], {
-          opacity: 1,
-          duration: 0.3
-        });
-        
-        gsap.to(bars[2], {
-          rotation: 0,
-          y: 0,
-          duration: 0.3
-        });
-      });
-    });
+
+function initMobileNav() {
+  const navToggle = document.querySelector('.nav-toggle');
+  const navOverlay = document.querySelector('.nav-overlay');
+  
+  if (!navToggle || !navOverlay) {
+    console.error('Mobile navigation elements not found');
+    return;
   }
+  
+  const toggleNav = (show) => {
+    const bars = navToggle.querySelectorAll('.nav-toggle-bar');
+    const navLinks = navOverlay.querySelectorAll('a');
+    
+    if (show === true || (show === undefined && !navToggle.classList.contains('active'))) {
+      // Show navigation
+      navToggle.classList.add('active');
+      navOverlay.classList.add('active');
+      document.body.classList.add('mobile-nav-active');
+      
+      // Animate to X
+      gsap.to(bars[0], {
+        rotation: 45,
+        y: 8,
+        duration: 0.3
+      });
+      
+      gsap.to(bars[1], {
+        opacity: 0,
+        duration: 0.3
+      });
+      
+      gsap.to(bars[2], {
+        rotation: -45,
+        y: -8,
+        duration: 0.3
+      });
+      
+      // Animate links
+      gsap.fromTo(navLinks, 
+        {
+          opacity: 0,
+          y: 20
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.3,
+          stagger: 0.1,
+          delay: 0.2
+        }
+      );
+    } else {
+      // Hide navigation
+      navToggle.classList.remove('active');
+      navOverlay.classList.remove('active');
+      document.body.classList.remove('mobile-nav-active');
+      
+      // Animate back to hamburger
+      gsap.to(bars[0], {
+        rotation: 0,
+        y: 0,
+        duration: 0.3
+      });
+      
+      gsap.to(bars[1], {
+        opacity: 1,
+        duration: 0.3
+      });
+      
+      gsap.to(bars[2], {
+        rotation: 0,
+        y: 0,
+        duration: 0.3
+      });
+    }
+  };
+  
+  // Toggle when clicking the hamburger icon
+  navToggle.addEventListener('click', () => {
+    toggleNav();
+  });
+  
+  // Close when clicking a link
+  navOverlay.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      toggleNav(false);
+    });
+  });
+  
+  // Close when pressing escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navOverlay.classList.contains('active')) {
+      toggleNav(false);
+    }
+  });
+  
+  // Close when clicking outside the navigation menu
+  navOverlay.addEventListener('click', (e) => {
+    // Only close if the click was directly on the overlay (not on a child element)
+    if (e.target === navOverlay) {
+      toggleNav(false);
+    }
+  });
+}
 
   // Theme toggle functionality
   const themeToggle = document.getElementById('theme-toggle');
