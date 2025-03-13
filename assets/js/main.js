@@ -93,9 +93,6 @@ document.addEventListener("DOMContentLoaded", function() {
       // Initialize particles background
       initParticles();
       
-      // Initialize smooth scrolling
-      initSmoothScroll();
-      
       // Initialize typing effect
       initTypingEffect();
       
@@ -122,6 +119,9 @@ document.addEventListener("DOMContentLoaded", function() {
       
       // Initialize mobile navigation
       initMobileNav();
+      
+      // Initialize scrolling and navigation effects
+      initNavigation();
     } catch (error) {
       console.error("Error initializing animations:", error);
     }
@@ -293,110 +293,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Initialize Locomotive Scroll
-  function initSmoothScroll() {
-    try {
-      // Check if LocomotiveScroll is defined
-      if (typeof LocomotiveScroll === 'undefined') {
-        console.warn('LocomotiveScroll is not defined');
-        return;
-      }
-      
-      // Check if the scroll container exists
-      const scrollContainer = document.querySelector('[data-scroll-container]');
-      if (!scrollContainer) {
-        console.warn('Scroll container not found');
-        return;
-      }
-
-      // Initialize smooth scroll
-      const scroll = new LocomotiveScroll({
-        el: scrollContainer,
-        smooth: true,
-        multiplier: 1,
-        lerp: 0.1,
-        smartphone: {
-          smooth: true
-        },
-        tablet: {
-          smooth: true
-        }
-      });
-
-      // Update scroll position for new content
-      scroll.on('scroll', (instance) => {
-        // Update animations based on scroll
-        updateAnimationsOnScroll(instance);
-      });
-
-      // Handle anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-          e.preventDefault();
-          
-          const targetId = this.getAttribute('href');
-          
-          if (targetId === '#header') {
-            scroll.scrollTo(0);
-          } else {
-            const target = document.querySelector(targetId);
-            if (target) {
-              scroll.scrollTo(target);
-            }
-          }
-          
-          // Close mobile nav if open
-          if (document.body.classList.contains('mobile-nav-active')) {
-            document.body.classList.remove('mobile-nav-active');
-            const navOverlay = document.querySelector('.nav-overlay');
-            if (navOverlay) navOverlay.classList.remove('active');
-          }
-        });
-      });
-
-      // Add a global update method to refresh Locomotive Scroll
-      window.updateScroll = function() {
-        scroll.update();
-      };
-
-      // Add the scroll instance to window for global access
-      window.locomotiveScroll = scroll;
-      
-      // Add a window resize handler to update scroll
-      window.addEventListener('resize', () => {
-        // Debounce the resize event
-        clearTimeout(window.resizeTimer);
-        window.resizeTimer = setTimeout(() => {
-          scroll.update();
-        }, 250);
-      });
-    } catch (error) {
-      console.error('Error initializing Locomotive Scroll:', error);
-      // Fallback to default scrolling if Locomotive fails
-    }
-  }
-
-  // Update animations when scrolling
-  function updateAnimationsOnScroll(instance) {
-    try {
-      if (!instance || !instance.scroll) return;
-      
-      const scrollTop = instance.scroll.y;
-      
-      // Add active class to sections in viewport
-      document.querySelectorAll('section').forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        
-        if (scrollTop >= sectionTop - 300 && scrollTop < sectionTop + sectionHeight - 300) {
-          section.classList.add('active');
-        }
-      });
-    } catch (error) {
-      console.error("Error updating animations on scroll:", error);
-    }
-  }
-
   // Initialize typing effect for the role text
   function initTypingEffect() {
     try {
@@ -491,7 +387,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Initialize counters with CounterUp
+  // Initialize counters
   function initCounters() {
     try {
       const countElements = document.querySelectorAll('.count');
@@ -581,25 +477,13 @@ document.addEventListener("DOMContentLoaded", function() {
             gsap.to(targetContent, {
               maxHeight: 0,
               duration: 0.3,
-              ease: 'power2.out',
-              onComplete: () => {
-                // Update locomotive scroll
-                if (window.locomotiveScroll) {
-                  window.locomotiveScroll.update();
-                }
-              }
+              ease: 'power2.out'
             });
           } else {
             gsap.to(targetContent, {
               maxHeight: targetContent.scrollHeight,
               duration: 0.3,
-              ease: 'power2.out',
-              onComplete: () => {
-                // Update locomotive scroll
-                if (window.locomotiveScroll) {
-                  window.locomotiveScroll.update();
-                }
-              }
+              ease: 'power2.out'
             });
           }
         });
@@ -652,13 +536,6 @@ document.addEventListener("DOMContentLoaded", function() {
               });
             }
           });
-          
-          // Update locomotive scroll
-          setTimeout(() => {
-            if (window.locomotiveScroll) {
-              window.locomotiveScroll.update();
-            }
-          }, 500);
         });
       });
     } catch (error) {
@@ -968,6 +845,103 @@ document.addEventListener("DOMContentLoaded", function() {
       });
     } catch (error) {
       console.error("Mobile navigation error:", error);
+    }
+  }
+
+  // Setup navigation and smooth scrolling
+  function initNavigation() {
+    try {
+      // All navigation links (both desktop and mobile)
+      const navLinks = document.querySelectorAll('.nav-menu a[href^="#"], .nav-overlay-menu a[href^="#"]');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          
+          // Close mobile nav if open
+          if (document.body.classList.contains('mobile-nav-active')) {
+            document.body.classList.remove('mobile-nav-active');
+            
+            const navOverlay = document.querySelector('.nav-overlay');
+            if (navOverlay) navOverlay.classList.remove('active');
+            
+            const navToggle = document.querySelector('.nav-toggle');
+            if (navToggle) navToggle.classList.remove('active');
+            
+            // Reset hamburger icon
+            const bars = document.querySelectorAll('.nav-toggle-bar');
+            if (bars && bars.length === 3) {
+              gsap.to(bars[0], { rotation: 0, y: 0, duration: 0.3 });
+              gsap.to(bars[1], { opacity: 1, duration: 0.3 });
+              gsap.to(bars[2], { rotation: 0, y: 0, duration: 0.3 });
+            }
+          }
+          
+          // Smooth scroll to target section
+          if (targetId === '#header') {
+            window.scrollTo({
+              top: 0,
+              behavior: 'smooth'
+            });
+          } else {
+            const target = document.querySelector(targetId);
+            if (target) {
+              const headerOffset = 0; // Adjust this value if you have a fixed header
+              const elementPosition = target.getBoundingClientRect().top;
+              const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+              
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+              });
+            }
+          }
+          
+          // Update active navigation item
+          updateActiveNavItem(targetId);
+        });
+      });
+      
+      // Add active class to current nav item based on scroll position
+      window.addEventListener('scroll', () => {
+        const scrollPosition = window.scrollY;
+        
+        // Find the current section in view
+        let currentSection = '';
+        
+        if (scrollPosition < 100) {
+          currentSection = '#header';
+        } else {
+          document.querySelectorAll('section[id]').forEach(section => {
+            const sectionTop = section.offsetTop - 200;
+            const sectionHeight = section.offsetHeight;
+            
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+              currentSection = '#' + section.getAttribute('id');
+            }
+          });
+        }
+        
+        // Update active nav item if a section is in view
+        if (currentSection) {
+          updateActiveNavItem(currentSection);
+        }
+      });
+      
+      // Function to update active nav item
+      function updateActiveNavItem(sectionId) {
+        document.querySelectorAll('.nav-menu li').forEach(item => {
+          item.classList.remove('active');
+          const link = item.querySelector('a');
+          if (link && link.getAttribute('href') === sectionId) {
+            item.classList.add('active');
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Navigation initialization error:", error);
     }
   }
 

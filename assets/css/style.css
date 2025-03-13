@@ -404,6 +404,54 @@ section {
   transition: opacity 1s ease, transform 1s ease;
 }
 
+/* Add this at the end of your style.css file */
+
+/* Fix for section visibility */
+section.section {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  position: relative !important;
+  z-index: 1 !important;
+  min-height: 100px;
+}
+
+main {
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.container {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Fix for possible z-index issues */
+#particles-container {
+  z-index: 0 !important;
+}
+
+#header {
+  z-index: 2;
+}
+
+/* Fix for section padding */
+section {
+  padding: 80px 0 !important;
+}
+
+/* Fix any transform issues */
+.section-header,
+.section-title,
+.section-subtitle {
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
 .section.active {
   opacity: 1;
   transform: translateY(0);
