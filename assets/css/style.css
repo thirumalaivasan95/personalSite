@@ -1,4 +1,3 @@
-
 body {
   font-family: "Open Sans", sans-serif;
   background-color: #040404;
@@ -45,6 +44,242 @@ a:hover {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Raleway", sans-serif;
+}
+
+/* Light Mode Toggle */
+#theme-toggle {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  transition: 0.3s;
+}
+
+#theme-toggle:hover {
+  color: #18d26e;
+}
+
+/* Light Mode Styles */
+body.light-mode {
+  background-color: #f8f9fa;
+  color: #444;
+}
+
+body.light-mode::before {
+  background: #f8f9fa url("../img/bg.jpg") top right no-repeat;
+  background-size: cover;
+  opacity: 0.3;
+}
+
+body.light-mode section .container {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body.light-mode h1, 
+body.light-mode h2, 
+body.light-mode h3, 
+body.light-mode h4, 
+body.light-mode h5, 
+body.light-mode h6 {
+  color: #333;
+}
+
+body.light-mode .section-title h2 {
+  color: #555;
+}
+
+body.light-mode .section-title p {
+  color: #333;
+}
+
+body.light-mode #header h1 a, 
+body.light-mode #header h1 a:hover {
+  color: #333;
+}
+
+body.light-mode #header h2 {
+  color: #555;
+}
+
+body.light-mode #header h2 span {
+  color: #333;
+}
+
+body.light-mode .nav-menu a {
+  color: #555;
+}
+
+body.light-mode .nav-menu a:hover, 
+body.light-mode .nav-menu .active > a, 
+body.light-mode .nav-menu li:hover > a {
+  color: #18d26e;
+}
+
+body.light-mode .social-links a {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+body.light-mode .progress-bar-wrap {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .progress .skill {
+  color: #333;
+}
+
+/* Project Section */
+.project-box {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.project-box:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.project-box h4 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #18d26e;
+}
+
+.project-box p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.project-links {
+  margin-top: 15px;
+}
+
+.project-links a {
+  display: inline-block;
+  margin: 0 5px;
+  padding: 6px 15px;
+  border-radius: 50px;
+  color: #fff;
+  background: rgba(24, 210, 110, 0.2);
+  transition: 0.3s;
+}
+
+.project-links a:hover {
+  background: #18d26e;
+  color: #fff;
+}
+
+/* Light mode for project box */
+body.light-mode .project-box {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .project-box:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .project-box h4 {
+  color: #18d26e;
+}
+
+body.light-mode .project-box p {
+  color: #555;
+}
+
+body.light-mode .project-links a {
+  color: #555;
+  background: rgba(24, 210, 110, 0.1);
+}
+
+body.light-mode .project-links a:hover {
+  background: #18d26e;
+  color: #fff;
+}
+
+/* Project Modal */
+.project-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.project-modal-content {
+  background-color: rgba(0, 0, 0, 0.9);
+  margin: 10% auto;
+  padding: 30px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 700px;
+  position: relative;
+}
+
+body.light-mode .project-modal-content {
+  background-color: #fff;
+  color: #333;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: #fff;
+  text-decoration: none;
+}
+
+body.light-mode .close:hover,
+body.light-mode .close:focus {
+  color: #333;
+}
+
+#modal-title {
+  color: #18d26e;
+  margin-bottom: 20px;
+}
+
+#modal-desc {
+  margin-bottom: 20px;
+}
+
+#modal-details h3 {
+  color: #18d26e;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+#modal-details ul {
+  padding-left: 20px;
+}
+
+#modal-details li {
+  margin-bottom: 5px;
+}
+
+/* Form Messages */
+#form-message {
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
 }
 
 /*--------------------------------------------------------------
@@ -916,3 +1151,99 @@ section .container {
 }
 
 
+/* Light mode compatibility for all sections */
+body.light-mode .counts .count-box {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .counts .count-box span {
+  color: #333;
+}
+
+body.light-mode .counts .count-box i {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .interests .icon-box {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .interests .icon-box:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .interests .icon-box h3 {
+  color: #333;
+}
+
+body.light-mode .resume .resume-item {
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .resume .resume-title {
+  color: #333;
+}
+
+body.light-mode .resume .resume-item h5 {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .certifications .icon-box {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .certifications .icon-box h4 a {
+  color: #333;
+}
+
+body.light-mode .certifications .icon-box p {
+  color: #555;
+}
+
+body.light-mode .contact .info-box {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .contact .info-box p {
+  color: #333;
+}
+
+body.light-mode .contact .info-box .social-links a {
+  color: #333;
+}
+
+body.light-mode .contact .php-email-form {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .contact .php-email-form input, 
+body.light-mode .contact .php-email-form textarea {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+body.light-mode .contact .php-email-form input::placeholder, 
+body.light-mode .contact .php-email-form textarea::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode .credits {
+  color: #333;
+}
+
+body.light-mode .credits a:hover {
+  color: #18d26e;
+}
+
+/* Animation for typing effect */
+.typing {
+  display: inline-block;
+  border-right: 2px solid #18d26e;
+  padding-right: 5px;
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #18d26e; }
+}
