@@ -29,56 +29,30 @@ $email = filter_var($email, FILTER_SANITIZE_EMAIL);
 $subject = htmlspecialchars($subject);
 $message = htmlspecialchars($message);
 
-// Try to use the PHP Email Form library if available
-if (file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php')) {
-    include($php_email_form);
+try {
+    // Create email headers
+    $headers = "From: $email\r\n";
+    $headers .= "Reply-To: $email\r\n";
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
     
-    try {
-        $contact = new PHP_Email_Form;
-        $contact->ajax = true;
-        
-        $contact->to = $receiving_email_address;
-        $contact->from_name = $name;
-        $contact->from_email = $email;
-        $contact->subject = $subject;
-        
-        $contact->add_message($name, 'From');
-        $contact->add_message($email, 'Email');
-        $contact->add_message($message, 'Message', 10);
-        
-        $result = $contact->send();
-        
+    // Compose email message
+    $email_message = "<h3>Contact Form Message</h3>";
+    $email_message .= "<p><strong>Name:</strong> $name</p>";
+    $email_message .= "<p><strong>Email:</strong> $email</p>";
+    $email_message .= "<p><strong>Subject:</strong> $subject</p>";
+    $email_message .= "<p><strong>Message:</strong></p>";
+    $email_message .= "<p>" . nl2br($message) . "</p>";
+    
+    // Send email
+    $mail_result = mail($receiving_email_address, "Contact Form: $subject", $email_message, $headers);
+    
+    if ($mail_result) {
         echo json_encode(['success' => true, 'message' => 'Your message has been sent. Thank you!']);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Unable to send email. Please try again later.']);
     }
-} else {
-    // Fallback to basic PHP mail if the library is not available
-    try {
-        // Create email headers
-        $headers = "From: $email\r\n";
-        $headers .= "Reply-To: $email\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-        
-        // Compose email message
-        $email_message = "<h3>Contact Form Message</h3>";
-        $email_message .= "<p><strong>Name:</strong> $name</p>";
-        $email_message .= "<p><strong>Email:</strong> $email</p>";
-        $email_message .= "<p><strong>Subject:</strong> $subject</p>";
-        $email_message .= "<p><strong>Message:</strong></p>";
-        $email_message .= "<p>" . nl2br($message) . "</p>";
-        
-        // Send email
-        $mail_result = mail($receiving_email_address, "Contact Form: $subject", $email_message, $headers);
-        
-        if ($mail_result) {
-            echo json_encode(['success' => true, 'message' => 'Your message has been sent. Thank you!']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Unable to send email. Please try again later.']);
-        }
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
-    }
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }
 ?>
