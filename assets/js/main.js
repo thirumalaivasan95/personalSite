@@ -122,6 +122,9 @@ document.addEventListener("DOMContentLoaded", function() {
       
       // Initialize scrolling and navigation effects
       initNavigation();
+      
+      // Initialize sticky header
+      initStickyHeader();
     } catch (error) {
       console.error("Error initializing animations:", error);
     }
@@ -182,7 +185,6 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
       }
       
-      // Simply use the particlesJS function directly with configuration
       particlesJS('particles-container', {
         "particles": {
           "number": {
@@ -888,7 +890,7 @@ document.addEventListener("DOMContentLoaded", function() {
           } else {
             const target = document.querySelector(targetId);
             if (target) {
-              const headerOffset = 0; // Adjust this value if you have a fixed header
+              const headerOffset = document.getElementById('header').classList.contains('sticky-header') ? 70 : 0;
               const elementPosition = target.getBoundingClientRect().top;
               const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
               
@@ -898,52 +900,162 @@ document.addEventListener("DOMContentLoaded", function() {
               });
             }
           }
-          
-          // Update active navigation item
-          updateActiveNavItem(targetId);
         });
       });
-      
-      // Add active class to current nav item based on scroll position
-      window.addEventListener('scroll', () => {
-        const scrollPosition = window.scrollY;
-        
-        // Find the current section in view
-        let currentSection = '';
-        
-        if (scrollPosition < 100) {
-          currentSection = '#header';
-        } else {
-          document.querySelectorAll('section[id]').forEach(section => {
-            const sectionTop = section.offsetTop - 200;
-            const sectionHeight = section.offsetHeight;
-            
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-              currentSection = '#' + section.getAttribute('id');
-            }
-          });
-        }
-        
-        // Update active nav item if a section is in view
-        if (currentSection) {
-          updateActiveNavItem(currentSection);
-        }
-      });
-      
-      // Function to update active nav item
-      function updateActiveNavItem(sectionId) {
-        document.querySelectorAll('.nav-menu li').forEach(item => {
-          item.classList.remove('active');
-          const link = item.querySelector('a');
-          if (link && link.getAttribute('href') === sectionId) {
-            item.classList.add('active');
-          }
-        });
-      }
     } catch (error) {
       console.error("Navigation initialization error:", error);
     }
   }
+
+  // Sticky header functionality
+function initStickyHeader() {
+  try {
+    const header = document.getElementById('header');
+    const headerContainer = header.querySelector('.container');
+    
+    if (!header || !headerContainer) return;
+    
+    // Function to handle scroll events
+    function handleScroll() {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      
+      // Check if we're viewing the home section (first screen)
+      const isHomeSection = scrollPosition < windowHeight * 0.5;
+      
+      // Apply sticky header class when scrolled down
+      if (scrollPosition > 50) {
+        header.classList.add('sticky-header');
+        document.body.classList.add('has-sticky-header');
+      } else {
+        header.classList.remove('sticky-header');
+        document.body.classList.remove('has-sticky-header');
+      }
+      
+      // Toggle header transparency class based on current section
+      if (isHomeSection && scrollPosition < 50) {
+        // On home section and not scrolled - transparent header
+        headerContainer.classList.add('transparent-bg');
+      } else {
+        // On other sections or scrolled - filled header
+        headerContainer.classList.remove('transparent-bg');
+      }
+      
+      // Update active navigation based on scroll position
+      updateActiveNavLinks();
+    }
+    
+    // Function to update active navigation links
+    function updateActiveNavLinks() {
+      const scrollPosition = window.scrollY;
+      const sections = document.querySelectorAll('section[id]');
+      
+      // Determine which section is currently in view
+      let currentSection = '';
+      
+      if (scrollPosition < 100) {
+        currentSection = '#header';
+      } else {
+        sections.forEach(section => {
+          // Adjust the offset to account for the sticky header
+          const sectionTop = section.offsetTop - 100;
+          const sectionHeight = section.offsetHeight;
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+            currentSection = '#' + section.getAttribute('id');
+          }
+        });
+      }
+      
+      // Update active class on navigation links
+      if (currentSection) {
+        document.querySelectorAll('.nav-menu li').forEach(item => {
+          item.classList.remove('active');
+          const link = item.querySelector('a');
+          if (link && link.getAttribute('href') === currentSection) {
+            item.classList.add('active');
+          }
+        });
+        
+        // Update mobile menu active state as well
+        document.querySelectorAll('.nav-overlay-menu li').forEach(item => {
+          item.classList.remove('active');
+          const link = item.querySelector('a');
+          if (link && link.getAttribute('href') === currentSection) {
+            item.classList.add('active');
+          }
+        });
+      }
+    }
+    
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    // Adjust scroll offset for smooth scrolling
+    document.querySelectorAll('.nav-menu a[href^="#"], .nav-overlay-menu a[href^="#"]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        
+        // Close mobile nav if open
+        if (document.body.classList.contains('mobile-nav-active')) {
+          document.body.classList.remove('mobile-nav-active');
+          
+          const navOverlay = document.querySelector('.nav-overlay');
+          if (navOverlay) navOverlay.classList.remove('active');
+          
+          const navToggle = document.querySelector('.nav-toggle');
+          if (navToggle) navToggle.classList.remove('active');
+          
+          // Reset hamburger icon
+          const bars = document.querySelectorAll('.nav-toggle-bar');
+          if (bars && bars.length === 3) {
+            gsap.to(bars[0], { rotation: 0, y: 0, duration: 0.3 });
+            gsap.to(bars[1], { opacity: 1, duration: 0.3 });
+            gsap.to(bars[2], { rotation: 0, y: 0, duration: 0.3 });
+          }
+        }
+        
+        // Smooth scroll to target section with offset for sticky header
+        if (targetId === '#header') {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        } else {
+          const target = document.querySelector(targetId);
+          if (target) {
+            // Adjust offset based on if header is sticky
+            const offset = header.classList.contains('sticky-header') ? 70 : 0;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            
+            window.scrollTo({
+              top: targetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }
+      });
+    });
+    
+    // Initialize on page load
+    headerContainer.classList.add('transparent-bg');
+    handleScroll();
+    
+  } catch (error) {
+    console.error("Sticky header initialization error:", error);
+  }
+}
+
+// Add this to your existing JavaScript file
+// Make sure to call this function after the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof initStickyHeader === 'function') {
+    initStickyHeader();
+  }
+});
 
   // Theme toggle functionality
   const themeToggle = document.getElementById('theme-toggle');

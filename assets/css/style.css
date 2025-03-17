@@ -1,12 +1,12 @@
-/* Base Styles */
+/* Base Styles and Variables */
 :root {
   --primary-color: #18d26e;
   --primary-color-rgb: 24, 210, 110;
   --secondary-color: #35e888;
   --dark-bg: #040404;
-  --dark-content-bg: rgba(0, 0, 0, 0.9);
+  --dark-content-bg: rgba(0, 0, 0, 0.7); /* Translucent dark background */
   --light-bg: #f8f9fa;
-  --light-content-bg: rgba(255, 255, 255, 0.9);
+  --light-content-bg: rgba(255, 255, 255, 0.7); /* Translucent light background */
   --text-color: #fff;
   --dark-text-color: #333;
   --section-padding: 80px 0;
@@ -192,7 +192,23 @@ h1, h2, h3, h4, h5, h6 {
   position: fixed;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: 0;
+}
+
+/* Container Styling */
+.container {
+  background: var(--dark-content-bg);
+  padding: 3rem;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s ease;
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+
+body.light-mode .container {
+  background: var(--light-content-bg);
 }
 
 /* Header Section */
@@ -201,10 +217,30 @@ h1, h2, h3, h4, h5, h6 {
   height: 100vh;
   display: flex;
   align-items: center;
-  z-index: 1;
+  z-index: 1000;
   overflow: hidden;
   padding: 0;
   transition: all 0.5s ease;
+}
+
+/* Transparent container for home page */
+#header .container.transparent-bg {
+  background: transparent;
+  box-shadow: none;
+}
+
+#header .container.transparent-bg h1,
+#header .container.transparent-bg h2,
+#header .container.transparent-bg .nav-menu a,
+#header .container.transparent-bg .social-links a {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+body.light-mode #header .container.transparent-bg h1,
+body.light-mode #header .container.transparent-bg h2,
+body.light-mode #header .container.transparent-bg .nav-menu a,
+body.light-mode #header .container.transparent-bg .social-links a {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .header-content {
@@ -239,6 +275,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 6px;
 }
 
+/* Navigation Menu */
 .nav-menu {
   margin-top: 2rem;
 }
@@ -286,6 +323,7 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
 }
 
+/* Social Links */
 .social-links {
   margin-top: 40px;
   display: flex;
@@ -391,82 +429,102 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
+/* Sticky Header Styles */
+#header.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  min-height: 60px;
+  background: transparent;
+  z-index: 1000;
+  padding: 5px 0;
+}
+
+#header.sticky-header .container {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 10px 15px;
+}
+
+body.light-mode #header.sticky-header .container {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+body.light-mode #header.sticky-header .nav-menu {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+#header.sticky-header h1,
+#header.sticky-header h2,
+#header.sticky-header .social-links {
+  display: none;
+}
+
+#header.sticky-header .header-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#header.sticky-header .nav-menu {
+  margin-top: 0;
+  display: block;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 30px;
+  padding: 5px 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+}
+
+#header.sticky-header .nav-menu ul {
+  justify-content: center;
+  padding: 5px 0;
+}
+
+#header.sticky-header .nav-menu li {
+  margin: 0 15px;
+}
+
+body.has-sticky-header main {
+  padding-top: 60px;
+}
+
 /* Section Common Styles */
 section {
   padding: var(--section-padding);
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 .section {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 1s ease, transform 1s ease;
-}
-
-/* Add this at the end of your style.css file */
-
-/* Fix for section visibility */
-section.section {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  position: relative !important;
-  z-index: 1 !important;
+  opacity: 1;
+  transform: none;
   min-height: 100px;
 }
 
-main {
-  display: block !important;
-  position: relative !important;
-  z-index: 1 !important;
+/* Text shadows for better readability on translucent backgrounds */
+section .section-title,
+section .section-subtitle,
+section p,
+section h1, 
+section h2, 
+section h3, 
+section h4 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.container {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Fix for possible z-index issues */
-#particles-container {
-  z-index: 0 !important;
-}
-
-#header {
-  z-index: 2;
-}
-
-/* Fix for section padding */
-section {
-  padding: 80px 0 !important;
-}
-
-/* Fix any transform issues */
-.section-header,
-.section-title,
-.section-subtitle {
-  transform: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.section.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.container {
-  background: var(--dark-content-bg);
-  padding: 3rem;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.5s ease;
-}
-
-body.light-mode .container {
-  background: var(--light-content-bg);
+body.light-mode section .section-title,
+body.light-mode section .section-subtitle,
+body.light-mode section p,
+body.light-mode section h1, 
+body.light-mode section h2, 
+body.light-mode section h3, 
+body.light-mode section h4 {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 .section-header {
@@ -596,22 +654,6 @@ body.light-mode .section-subtitle {
   color: rgba(255, 255, 255, 0.7);
 }
 
-body.light-mode .count-box {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-mode .count-box:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-body.light-mode .count-box .count {
-  color: var(--dark-text-color);
-}
-
-body.light-mode .count-box p {
-  color: rgba(0, 0, 0, 0.7);
-}
-
 /* Skills */
 .skills-container {
   margin-top: 4rem;
@@ -665,10 +707,6 @@ body.light-mode .count-box p {
   font-style: italic;
 }
 
-body.light-mode .skill-progress-bar {
-  background: rgba(0, 0, 0, 0.1);
-}
-
 /* Interests */
 .interests-container {
   margin-top: 4rem;
@@ -704,18 +742,6 @@ body.light-mode .skill-progress-bar {
   font-weight: 600;
   margin: 0;
   color: var(--text-color);
-}
-
-body.light-mode .interest-box {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-mode .interest-box:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-body.light-mode .interest-box h4 {
-  color: var(--dark-text-color);
 }
 
 /* Resume Section */
@@ -819,10 +845,6 @@ body.light-mode .interest-box h4 {
   transition: max-height 0.3s ease;
 }
 
-body.light-mode .resume-item h5 {
-  background: rgba(0, 0, 0, 0.05);
-}
-
 /* Projects Section */
 .project-filters {
   display: flex;
@@ -919,26 +941,6 @@ body.light-mode .resume-item h5 {
   color: var(--primary-color);
 }
 
-body.light-mode .project-box {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-mode .project-box:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-body.light-mode .project-box p {
-  color: rgba(0, 0, 0, 0.8);
-}
-
-body.light-mode .project-links {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-body.light-mode .project-links a {
-  color: var(--dark-text-color);
-}
-
 /* Certifications Section */
 .certification-box {
   text-align: center;
@@ -995,22 +997,6 @@ body.light-mode .project-links a {
   font-size: 0.9rem;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.8);
-}
-
-body.light-mode .certification-box {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-mode .certification-box:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-body.light-mode .certification-box h4 {
-  color: var(--dark-text-color);
-}
-
-body.light-mode .certification-box p {
-  color: rgba(0, 0, 0, 0.8);
 }
 
 /* Contact Section */
@@ -1154,41 +1140,6 @@ textarea.form-control {
   transform: translateY(-3px);
 }
 
-body.light-mode .contact-info-box {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-mode .contact-info-box:hover {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-body.light-mode .contact-info-box h3,
-body.light-mode .contact-info-box p {
-  color: var(--dark-text-color);
-}
-
-body.light-mode .contact-form-container {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-body.light-mode .form-control {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--dark-text-color);
-}
-
-body.light-mode .form-control:focus {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-body.light-mode .form-label {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-body.light-mode .form-control:focus ~ .form-label,
-body.light-mode .form-control:valid ~ .form-label {
-  background: var(--light-content-bg);
-}
-
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -1285,14 +1236,6 @@ body.light-mode .form-control:valid ~ .form-label {
   transform: translateY(-3px);
 }
 
-body.light-mode .modal-content {
-  background: var(--light-content-bg);
-}
-
-body.light-mode .modal-close {
-  color: rgba(0, 0, 0, 0.7);
-}
-
 /* Footer */
 .credits {
   position: fixed;
@@ -1310,6 +1253,83 @@ body.light-mode .modal-close {
 .credits a {
   color: var(--primary-color);
   font-weight: 600;
+}
+
+/* Light Mode Specific Styles */
+body.light-mode .skill-progress-bar {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .count-box,
+body.light-mode .interest-box,
+body.light-mode .certification-box,
+body.light-mode .project-box,
+body.light-mode .contact-info-box,
+body.light-mode .contact-form-container {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .count-box:hover,
+body.light-mode .interest-box:hover,
+body.light-mode .certification-box:hover,
+body.light-mode .project-box:hover,
+body.light-mode .contact-info-box:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .count-box .count {
+  color: var(--dark-text-color);
+}
+
+body.light-mode .count-box p,
+body.light-mode .project-box p,
+body.light-mode .certification-box p,
+body.light-mode .contact-info-box p {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+body.light-mode .interest-box h4,
+body.light-mode .certification-box h4,
+body.light-mode .contact-info-box h3 {
+  color: var(--dark-text-color);
+}
+
+body.light-mode .resume-item h5 {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .project-links {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .project-links a {
+  color: var(--dark-text-color);
+}
+
+body.light-mode .form-control {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--dark-text-color);
+}
+
+body.light-mode .form-control:focus {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .form-label {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+body.light-mode .form-control:focus ~ .form-label,
+body.light-mode .form-control:valid ~ .form-label {
+  background: var(--light-content-bg);
+}
+
+body.light-mode .modal-content {
+  background: var(--light-content-bg);
+}
+
+body.light-mode .modal-close {
+  color: rgba(0, 0, 0, 0.7);
 }
 
 body.light-mode .credits {
@@ -1360,6 +1380,52 @@ body.light-mode .credits {
   .header-content {
     text-align: center;
   }
+  
+  /* Sticky header mobile adjustments */
+  #header.sticky-header {
+    min-height: 50px;
+  }
+  
+  #header.sticky-header .nav-toggle {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-top: 0;
+  }
+  
+  #header.sticky-header .nav-menu {
+    display: none;
+  }
+  
+  #header.sticky-header h1 {
+    display: block;
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #header.sticky-header .header-content {
+    justify-content: flex-start;
+    padding: 0 20px;
+  }
+  
+  #header .container, 
+  #header.sticky-header .container {
+    background: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  body.light-mode #header.sticky-header .container {
+    background: rgba(255, 255, 255, 0.9);
+  }
+  
+  /* The nav menu won't be visible on mobile anyway */
+  #header.sticky-header .nav-menu {
+    background: transparent;
+    box-shadow: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1399,6 +1465,14 @@ body.light-mode .credits {
   .modal-content {
     width: 90%;
     padding: 1.5rem;
+  }
+  
+  #header.sticky-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  #header.sticky-header .container {
+    padding: 10px;
   }
 }
 
@@ -1447,7 +1521,13 @@ body.light-mode .credits {
   }
 }
 
-/* Hidden Class for Project Filtering */
+/* Utility Classes */
+main {
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
 .hidden {
   display: none;
 }
