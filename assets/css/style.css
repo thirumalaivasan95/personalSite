@@ -32,7 +32,8 @@ body {
   overflow-x: hidden;
 }
 
-body::before {
+/* Background for non-home pages */
+body:not(.home-page)::before {
   content: "";
   position: fixed;
   background: var(--dark-bg) url("../img/bg.jpg") top right no-repeat;
@@ -50,7 +51,7 @@ body.light-mode {
   color: var(--dark-text-color);
 }
 
-body.light-mode::before {
+body.light-mode:not(.home-page)::before {
   background: var(--light-bg) url("../img/bg.jpg") top right no-repeat;
   background-size: cover;
   opacity: 0.3;
@@ -1339,7 +1340,7 @@ body.light-mode .credits {
 
 /* Media Queries */
 @media (min-width: 1024px) {
-  body::before {
+  body:not(.home-page)::before {
     background-attachment: fixed;
   }
 }

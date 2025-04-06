@@ -87,6 +87,11 @@ document.addEventListener("DOMContentLoaded", function() {
   // Initialize all page animations
   function initPageAnimations() {
     try {
+      // Register GSAP plugins if available
+      if (typeof gsap !== 'undefined' && gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
+      }
+      
       // Initialize custom cursor
       initCustomCursor();
       
@@ -99,13 +104,13 @@ document.addEventListener("DOMContentLoaded", function() {
       // Initialize section animations
       initSectionAnimations();
       
-      // Initialize counters
+      // Initialize counters - improved version
       initCounters();
       
-      // Initialize skill progress bars
+      // Initialize skill progress bars - improved version
       initSkillBars();
       
-      // Initialize timeline animation
+      // Initialize timeline animation - improved version
       initTimeline();
       
       // Initialize project filtering
@@ -125,6 +130,13 @@ document.addEventListener("DOMContentLoaded", function() {
       
       // Initialize sticky header
       initStickyHeader();
+      
+      // Check for visible elements immediately
+      checkVisibleElements();
+      
+      // And check again after a short delay
+      setTimeout(checkVisibleElements, 500);
+      setTimeout(checkVisibleElements, 1000);
     } catch (error) {
       console.error("Error initializing animations:", error);
     }
@@ -329,11 +341,6 @@ document.addEventListener("DOMContentLoaded", function() {
         return;
       }
       
-      // GSAP animations for sections
-      if (gsap.registerPlugin && typeof ScrollTrigger !== 'undefined') {
-        gsap.registerPlugin(ScrollTrigger);
-      }
-      
       // Header content animation
       gsap.from('.header-content h1', {
         opacity: 0,
@@ -389,106 +396,248 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  // Initialize counters
+  // IMPROVED: Initialize counters with direct DOM manipulation
   function initCounters() {
     try {
       const countElements = document.querySelectorAll('.count');
+      if (!countElements.length) return;
       
-      countElements.forEach(element => {
-        const target = parseInt(element.getAttribute('data-count'));
+      // Set all counters to zero initially for visual consistency
+      countElements.forEach(counter => {
+        counter.textContent = '0';
         
-        let count = {value: 0};
+        // Store the target value for future reference
+        if (!counter.dataset.targetValue) {
+          counter.dataset.targetValue = counter.getAttribute('data-count');
+        }
+      });
+      
+      // Function to animate a specific counter
+      function animateCounter(counter) {
+        // Skip if already animating
+        if (counter.dataset.animating === 'true') return;
         
-        gsap.to(count, {
-          value: target,
-          duration: 2,
-          ease: 'power2.out',
-          delay: 0.5,
-          scrollTrigger: {
-            trigger: element.closest('.count-box'),
-            start: 'top 80%',
-            toggleActions: 'play none none none'
-          },
-          onUpdate: () => {
-            element.textContent = Math.round(count.value);
+        const target = parseInt(counter.dataset.targetValue || counter.getAttribute('data-count'));
+        if (isNaN(target)) return;
+        
+        // Mark as animating
+        counter.dataset.animating = 'true';
+        
+        // Start from zero
+        let current = 0;
+        
+        // Calculate timing for smooth animation
+        const duration = 3500; // 1.5 seconds
+        const steps = 30; // number of steps to take
+        const stepValue = Math.ceil(target / steps);
+        const stepDuration = duration / steps;
+        
+        // Start counter animation
+        const interval = setInterval(() => {
+          current += stepValue;
+          
+          // Check if we've reached or exceeded the target
+          if (current >= target) {
+            current = target;
+            clearInterval(interval);
+          }
+          
+          // Update counter display
+          counter.textContent = current;
+        }, stepDuration);
+      }
+      
+      // Use Intersection Observer for efficient detection of visible counters
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const counter = entry.target;
+              animateCounter(counter);
+              observer.unobserve(counter); // No need to observe once triggered
+            }
+          });
+        }, { threshold: 0.1 }); // Trigger when 10% visible
+        
+        // Observe all counters
+        countElements.forEach(counter => {
+          observer.observe(counter);
+        });
+      }
+      
+      // Fallback to scroll-based detection
+      window.addEventListener('scroll', function() {
+        countElements.forEach(counter => {
+          // Skip if already animating
+          if (counter.dataset.animating === 'true') return;
+          
+          // Check if counter is in viewport
+          const rect = counter.getBoundingClientRect();
+          const isInViewport = (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.bottom >= 0
+          );
+          
+          if (isInViewport) {
+            animateCounter(counter);
           }
         });
       });
+      
+      // Check for visible counters immediately
+      setTimeout(() => {
+        countElements.forEach(counter => {
+          const rect = counter.getBoundingClientRect();
+          const isInViewport = (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.bottom >= 0
+          );
+          
+          if (isInViewport) {
+            animateCounter(counter);
+          }
+        });
+      }, 100);
     } catch (error) {
       console.error("Counters initialization error:", error);
+      
+      // Fallback: Just set the values directly if animation fails
+      document.querySelectorAll('.count').forEach(element => {
+        const target = parseInt(element.getAttribute('data-count'));
+        if (!isNaN(target)) {
+          element.textContent = target;
+        }
+      });
     }
   }
 
-  // Initialize skill progress bars
+  // IMPROVED: Initialize skill progress bars with direct DOM manipulation
   function initSkillBars() {
     try {
       const skillProgressBars = document.querySelectorAll('.skill-progress');
+      if (!skillProgressBars.length) return;
       
-      skillProgressBars.forEach(skill => {
-        const skillName = skill.querySelector('.skill-name');
-        if (!skillName) return;
-        
-        const percentage = skillName.getAttribute('data-percentage');
-        const progressBar = skill.querySelector('.skill-progress-value');
-        
-        if (progressBar) {
-          gsap.to(progressBar, {
-            width: `${percentage}%`,
-            duration: 1.5,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: skill,
-              start: 'top 80%',
-              toggleActions: 'play none none none'
-            }
-          });
+      // Reset all skill bars to zero width initially
+      skillProgressBars.forEach(skillBar => {
+        const progressValue = skillBar.querySelector('.skill-progress-value');
+        if (progressValue) {
+          progressValue.style.width = '0%';
+          
+          // Add smooth transition for animation
+          progressValue.style.transition = 'width 1.5s ease-out';
         }
       });
+      
+      // Function to animate a specific skill bar
+      function animateSkillBar(skillBar) {
+        // Skip if already animating
+        if (skillBar.dataset.animating === 'true') return;
+        
+        const skillName = skillBar.querySelector('.skill-name');
+        const progressValue = skillBar.querySelector('.skill-progress-value');
+        
+        if (!skillName || !progressValue) return;
+        
+        const percentage = skillName.getAttribute('data-percentage');
+        if (!percentage) return;
+        
+        // Mark as animating
+        skillBar.dataset.animating = 'true';
+        
+        // Use CSS transition for smooth animation
+        progressValue.style.width = percentage + '%';
+      }
+      
+      // Use Intersection Observer for efficient detection of visible skill bars
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const skillBar = entry.target;
+              animateSkillBar(skillBar);
+              observer.unobserve(skillBar); // No need to observe once triggered
+            }
+          });
+        }, { threshold: 0.1 }); // Trigger when 10% visible
+        
+        // Observe all skill bars
+        skillProgressBars.forEach(skillBar => {
+          observer.observe(skillBar);
+        });
+      }
+      
+      // Fallback to scroll-based detection
+      window.addEventListener('scroll', function() {
+        skillProgressBars.forEach(skillBar => {
+          // Skip if already animating
+          if (skillBar.dataset.animating === 'true') return;
+          
+          // Check if skill bar is in viewport
+          const rect = skillBar.getBoundingClientRect();
+          const isInViewport = (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.bottom >= 0
+          );
+          
+          if (isInViewport) {
+            animateSkillBar(skillBar);
+          }
+        });
+      });
+      
+      // Check for visible skill bars immediately
+      setTimeout(() => {
+        skillProgressBars.forEach(skillBar => {
+          const rect = skillBar.getBoundingClientRect();
+          const isInViewport = (
+            rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.bottom >= 0
+          );
+          
+          if (isInViewport) {
+            animateSkillBar(skillBar);
+          }
+        });
+      }, 100);
     } catch (error) {
       console.error("Skill bars initialization error:", error);
+      
+      // Fallback: Just set the values directly if animation fails
+      document.querySelectorAll('.skill-progress').forEach(skillBar => {
+        const skillName = skillBar.querySelector('.skill-name');
+        const progressValue = skillBar.querySelector('.skill-progress-value');
+        
+        if (skillName && progressValue) {
+          const percentage = skillName.getAttribute('data-percentage');
+          progressValue.style.width = percentage + '%';
+        }
+      });
     }
   }
 
-  // Timeline animation for experience section
+  // FIXED: Timeline animation for experience section
   function initTimeline() {
     try {
-      // Animate timeline progress bar
-      gsap.to('.timeline-progress-bar', {
-        height: '100%',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.experience-timeline',
-          start: 'top 80%',
-          end: 'bottom 20%',
-          scrub: true
-        }
-      });
-      
-      // Handle expand/collapse of timeline items
-      const expandButtons = document.querySelectorAll('.experience-expand');
-      expandButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const targetId = button.getAttribute('data-expand');
-          const targetContent = document.getElementById(targetId);
-          
-          if (!targetContent) return;
-          
-          button.classList.toggle('active');
-          
-          if (!button.classList.contains('active')) {
-            gsap.to(targetContent, {
-              maxHeight: 0,
-              duration: 0.3,
-              ease: 'power2.out'
-            });
-          } else {
-            gsap.to(targetContent, {
-              maxHeight: targetContent.scrollHeight,
-              duration: 0.3,
-              ease: 'power2.out'
-            });
+      const timelines = document.querySelectorAll('.experience-timeline');
+      timelines.forEach(timeline => {
+        const progressBar = timeline.querySelector('.timeline-progress-bar');
+        if (!progressBar) return;
+
+        function updateTimelineProgress() {
+          const rect = timeline.getBoundingClientRect();
+          const viewHeight = window.innerHeight;
+          let percentage = 0;
+
+          if (rect.top < viewHeight && rect.bottom > 0) {
+            const visibleHeight = Math.min(viewHeight - rect.top, rect.height);
+            percentage = (visibleHeight / rect.height) * 100;
           }
-        });
+          progressBar.style.height = `${Math.max(0, Math.min(100, percentage))}%`;
+        }
+
+        window.addEventListener('scroll', updateTimelineProgress);
+        window.addEventListener('resize', updateTimelineProgress);
+        updateTimelineProgress();
       });
     } catch (error) {
       console.error("Timeline initialization error:", error);
@@ -908,154 +1057,171 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   // Sticky header functionality
-function initStickyHeader() {
-  try {
-    const header = document.getElementById('header');
-    const headerContainer = header.querySelector('.container');
-    
-    if (!header || !headerContainer) return;
-    
-    // Function to handle scroll events
-    function handleScroll() {
-      const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
+  function initStickyHeader() {
+    try {
+      const header = document.getElementById('header');
+      const headerContainer = header.querySelector('.container');
       
-      // Check if we're viewing the home section (first screen)
-      const isHomeSection = scrollPosition < windowHeight * 0.5;
+      if (!header || !headerContainer) return;
       
-      // Apply sticky header class when scrolled down
-      if (scrollPosition > 50) {
-        header.classList.add('sticky-header');
-        document.body.classList.add('has-sticky-header');
-      } else {
-        header.classList.remove('sticky-header');
-        document.body.classList.remove('has-sticky-header');
-      }
-      
-      // Toggle header transparency class based on current section
-      if (isHomeSection && scrollPosition < 50) {
-        // On home section and not scrolled - transparent header
-        headerContainer.classList.add('transparent-bg');
-      } else {
-        // On other sections or scrolled - filled header
-        headerContainer.classList.remove('transparent-bg');
-      }
-      
-      // Update active navigation based on scroll position
-      updateActiveNavLinks();
-    }
-    
-    // Function to update active navigation links
-    function updateActiveNavLinks() {
-      const scrollPosition = window.scrollY;
-      const sections = document.querySelectorAll('section[id]');
-      
-      // Determine which section is currently in view
-      let currentSection = '';
-      
-      if (scrollPosition < 100) {
-        currentSection = '#header';
-      } else {
-        sections.forEach(section => {
-          // Adjust the offset to account for the sticky header
-          const sectionTop = section.offsetTop - 100;
-          const sectionHeight = section.offsetHeight;
-          
-          if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            currentSection = '#' + section.getAttribute('id');
-          }
-        });
-      }
-      
-      // Update active class on navigation links
-      if (currentSection) {
-        document.querySelectorAll('.nav-menu li').forEach(item => {
-          item.classList.remove('active');
-          const link = item.querySelector('a');
-          if (link && link.getAttribute('href') === currentSection) {
-            item.classList.add('active');
-          }
-        });
+      // Function to handle scroll events
+      function handleScroll() {
+        const scrollPosition = window.scrollY;
+        const windowHeight = window.innerHeight;
         
-        // Update mobile menu active state as well
-        document.querySelectorAll('.nav-overlay-menu li').forEach(item => {
-          item.classList.remove('active');
-          const link = item.querySelector('a');
-          if (link && link.getAttribute('href') === currentSection) {
-            item.classList.add('active');
-          }
-        });
-      }
-    }
-    
-    // Add scroll event listener
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    
-    // Adjust scroll offset for smooth scrolling
-    document.querySelectorAll('.nav-menu a[href^="#"], .nav-overlay-menu a[href^="#"]').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
+        // Check if we're viewing the home section (first screen)
+        const isHomeSection = scrollPosition < windowHeight * 0.5;
         
-        const targetId = this.getAttribute('href');
-        
-        // Close mobile nav if open
-        if (document.body.classList.contains('mobile-nav-active')) {
-          document.body.classList.remove('mobile-nav-active');
-          
-          const navOverlay = document.querySelector('.nav-overlay');
-          if (navOverlay) navOverlay.classList.remove('active');
-          
-          const navToggle = document.querySelector('.nav-toggle');
-          if (navToggle) navToggle.classList.remove('active');
-          
-          // Reset hamburger icon
-          const bars = document.querySelectorAll('.nav-toggle-bar');
-          if (bars && bars.length === 3) {
-            gsap.to(bars[0], { rotation: 0, y: 0, duration: 0.3 });
-            gsap.to(bars[1], { opacity: 1, duration: 0.3 });
-            gsap.to(bars[2], { rotation: 0, y: 0, duration: 0.3 });
-          }
+        // Apply sticky header class when scrolled down
+        if (scrollPosition > 50) {
+          header.classList.add('sticky-header');
+          document.body.classList.add('has-sticky-header');
+        } else {
+          header.classList.remove('sticky-header');
+          document.body.classList.remove('has-sticky-header');
         }
         
-        // Smooth scroll to target section with offset for sticky header
-        if (targetId === '#header') {
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          });
+        // Toggle header transparency class based on current section
+        if (isHomeSection && scrollPosition < 50) {
+          // On home section and not scrolled - transparent header
+          headerContainer.classList.add('transparent-bg');
         } else {
-          const target = document.querySelector(targetId);
-          if (target) {
-            // Adjust offset based on if header is sticky
-            const offset = header.classList.contains('sticky-header') ? 70 : 0;
-            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          // On other sections or scrolled - filled header
+          headerContainer.classList.remove('transparent-bg');
+        }
+        
+        // Update active navigation based on scroll position
+        updateActiveNavLinks();
+      }
+      
+      // Function to update active navigation links
+      function updateActiveNavLinks() {
+        const scrollPosition = window.scrollY;
+        const sections = document.querySelectorAll('section[id]');
+        
+        // Determine which section is currently in view
+        let currentSection = '';
+        
+        if (scrollPosition < 100) {
+          currentSection = '#header';
+        } else {
+          sections.forEach(section => {
+            // Adjust the offset to account for the sticky header
+            const sectionTop = section.offsetTop - 100;
+            const sectionHeight = section.offsetHeight;
             
-            window.scrollTo({
-              top: targetPosition,
-              behavior: 'smooth'
-            });
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+              currentSection = '#' + section.getAttribute('id');
+            }
+          });
+        }
+        
+        // Update active class on navigation links
+        if (currentSection) {
+          document.querySelectorAll('.nav-menu li').forEach(item => {
+            item.classList.remove('active');
+            const link = item.querySelector('a');
+            if (link && link.getAttribute('href') === currentSection) {
+              item.classList.add('active');
+            }
+          });
+          
+          // Update mobile menu active state as well
+          document.querySelectorAll('.nav-overlay-menu li').forEach(item => {
+            item.classList.remove('active');
+            const link = item.querySelector('a');
+            if (link && link.getAttribute('href') === currentSection) {
+              item.classList.add('active');
+            }
+          });
+        }
+      }
+      
+      // Add scroll event listener
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+      
+      // Initialize on page load
+      headerContainer.classList.add('transparent-bg');
+      handleScroll();
+    } catch (error) {
+      console.error("Sticky header initialization error:", error);
+    }
+  }
+
+  // Function to check which elements are currently visible and animate them
+  function checkVisibleElements() {
+    try {
+      // Helper function to check if element is in viewport
+      function isInViewport(element) {
+        const rect = element.getBoundingClientRect();
+        return (
+          rect.top <= (window.innerHeight || document.documentElement.clientHeight) + 100 &&
+          rect.bottom >= -100
+        );
+      }
+      
+      // Check and animate counters
+      document.querySelectorAll('.count').forEach(counter => {
+        // Skip if already animating
+        if (counter.dataset.animating === 'true') return;
+        
+        // Check if counter's parent is visible
+        const box = counter.closest('.count-box');
+        if (box && isInViewport(box)) {
+          const target = parseInt(counter.getAttribute('data-count'));
+          if (isNaN(target)) return;
+          
+          // Start from zero
+          counter.textContent = '0';
+          counter.dataset.animating = 'true';
+          
+          // Calculate timing for smooth animation
+          const duration = 1500; // 1.5 seconds
+          const steps = 30; // number of steps to take
+          const stepValue = Math.ceil(target / steps);
+          const stepDuration = duration / steps;
+          
+          // Start counter animation
+          let current = 0;
+          const interval = setInterval(() => {
+            current += stepValue;
+            
+            // Check if we've reached or exceeded the target
+            if (current >= target) {
+              current = target;
+              clearInterval(interval);
+            }
+            
+            // Update counter display
+            counter.textContent = current;
+          }, stepDuration);
+        }
+      });
+      
+      // Check and animate skill bars
+      document.querySelectorAll('.skill-progress').forEach(skillBar => {
+        // Skip if already animating
+        if (skillBar.dataset.animating === 'true') return;
+        
+        if (isInViewport(skillBar)) {
+          const progressValue = skillBar.querySelector('.skill-progress-value');
+          const skillName = skillBar.querySelector('.skill-name');
+          
+          if (progressValue && skillName) {
+            const percentage = skillName.getAttribute('data-percentage');
+            if (percentage) {
+              skillBar.dataset.animating = 'true';
+              progressValue.style.transition = 'width 1.5s ease-out';
+              progressValue.style.width = percentage + '%';
+            }
           }
         }
       });
-    });
-    
-    // Initialize on page load
-    headerContainer.classList.add('transparent-bg');
-    handleScroll();
-    
-  } catch (error) {
-    console.error("Sticky header initialization error:", error);
+    } catch (error) {
+      console.error("Check visible elements error:", error);
+    }
   }
-}
-
-// Add this to your existing JavaScript file
-// Make sure to call this function after the DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  if (typeof initStickyHeader === 'function') {
-    initStickyHeader();
-  }
-});
 
   // Theme toggle functionality
   const themeToggle = document.getElementById('theme-toggle');
@@ -1102,4 +1268,18 @@ document.addEventListener('DOMContentLoaded', function() {
   function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
+  
+  // Add scroll event listener for animation checks
+  window.addEventListener('scroll', function() {
+    // Use debounce to limit how often this runs
+    if (window.scrollCheckTimeout) clearTimeout(window.scrollCheckTimeout);
+    window.scrollCheckTimeout = setTimeout(checkVisibleElements, 100);
+  });
+  
+  // Ensure animations get triggered even if scroll events don't fire
+  window.addEventListener('load', function() {
+    checkVisibleElements();
+    setTimeout(checkVisibleElements, 500);
+    setTimeout(checkVisibleElements, 1000);
+  });
 });
