@@ -1532,3 +1532,359 @@ main {
 .hidden {
   display: none;
 }
+
+/* ============================================================
+   VISUAL ENHANCEMENT OVERHAUL
+   ============================================================ */
+
+/* --- Project Placeholder Thumbnails (replaces missing images) --- */
+.project-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.5s ease;
+}
+
+.project-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  filter: brightness(1.15);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.project-box:hover .project-placeholder::before {
+  opacity: 1;
+}
+
+.project-box:hover .project-placeholder {
+  transform: scale(1.05);
+}
+
+.project-placeholder i {
+  font-size: 3.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.6));
+  transition: transform 0.3s ease;
+}
+
+.project-box:hover .project-placeholder i {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.project-placeholder span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.project-placeholder--cpp {
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0d7377 100%);
+}
+
+.project-placeholder--python {
+  background: linear-gradient(135deg, #1a6b3a 0%, #0a3d20 50%, #14a761 100%);
+}
+
+.project-placeholder--ml {
+  background: linear-gradient(135deg, #4a0080 0%, #1a0030 50%, #7b00d4 100%);
+}
+
+.project-placeholder--embedded {
+  background: linear-gradient(135deg, #7a3500 0%, #3d1a00 50%, #d45f00 100%);
+}
+
+.project-placeholder--deeplearning {
+  background: linear-gradient(135deg, #003366 0%, #001a40 50%, #0055b3 100%);
+}
+
+.project-placeholder--web {
+  background: linear-gradient(135deg, #003333 0%, #001a1a 50%, #00796b 100%);
+}
+
+/* --- Glassmorphism enhancement for all cards --- */
+.count-box,
+.interest-box,
+.certification-box,
+.project-box,
+.contact-info-box,
+.contact-form-container,
+.resume-item {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.count-box:hover,
+.interest-box:hover,
+.certification-box:hover,
+.project-box:hover,
+.contact-info-box:hover {
+  border-color: rgba(var(--primary-color-rgb), 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(var(--primary-color-rgb), 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* --- Top accent border on hover --- */
+.count-box,
+.interest-box,
+.certification-box,
+.project-box,
+.contact-info-box {
+  position: relative;
+}
+
+.count-box::before,
+.interest-box::before,
+.certification-box::before,
+.contact-info-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  opacity: 0;
+  border-radius: 10px 10px 0 0;
+  transition: opacity 0.3s ease;
+}
+
+.count-box:hover::before,
+.interest-box:hover::before,
+.certification-box:hover::before,
+.contact-info-box:hover::before {
+  opacity: 1;
+}
+
+/* Project box gets top accent via border instead */
+.project-box {
+  border-top: 2px solid transparent;
+  transition: all 0.3s ease, border-top-color 0.3s ease;
+}
+
+.project-box:hover {
+  border-top-color: var(--primary-color);
+}
+
+/* --- Neon glow on count numbers --- */
+.count-box .count {
+  background: linear-gradient(135deg, #fff 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Section title — wider decorative lines --- */
+.section-title::before,
+.section-title::after {
+  width: 60px;
+  background: linear-gradient(90deg, transparent, var(--primary-color));
+}
+
+.section-title::after {
+  background: linear-gradient(90deg, var(--primary-color), transparent);
+}
+
+/* --- Section subtitle gradient accent --- */
+.section-subtitle {
+  background: linear-gradient(135deg, var(--text-color) 60%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light-mode .section-subtitle {
+  background: linear-gradient(135deg, var(--dark-text-color) 60%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Skills: shimmer effect on progress bar --- */
+.skill-progress-value {
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--primary-color) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* --- About image: glowing border frame --- */
+.about-img-container {
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 0 3px var(--primary-color), 0 0 30px rgba(var(--primary-color-rgb), 0.35), 0 20px 40px rgba(0,0,0,0.3);
+}
+
+/* --- Header h1 gradient text --- */
+#header h1 a {
+  background: linear-gradient(135deg, #fff 40%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Social links: stagger glow colors on hover --- */
+.social-links a:nth-child(1):hover { background: #1877f2; box-shadow: 0 0 15px rgba(24, 119, 242, 0.5); }
+.social-links a:nth-child(2):hover { background: #e1306c; box-shadow: 0 0 15px rgba(225, 48, 108, 0.5); }
+.social-links a:nth-child(3):hover { background: #333; box-shadow: 0 0 15px rgba(51, 51, 51, 0.5); }
+.social-links a:nth-child(4):hover { background: #0077b5; box-shadow: 0 0 15px rgba(0, 119, 181, 0.5); }
+
+/* --- Resume timeline dots: pulsing ring --- */
+.resume-item::before {
+  box-shadow: 0 0 0 4px rgba(var(--primary-color-rgb), 0.2);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(var(--primary-color-rgb), 0.2); }
+  50%       { box-shadow: 0 0 0 8px rgba(var(--primary-color-rgb), 0.05); }
+}
+
+/* --- Certification icon ring: animated spin on hover --- */
+.certification-box:hover .icon {
+  animation: spin-icon 0.6s ease-in-out;
+  box-shadow: var(--neon-shadow);
+}
+
+@keyframes spin-icon {
+  0%   { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+/* --- Filter buttons: pill with glow --- */
+.filter-button.active {
+  box-shadow: var(--neon-shadow);
+}
+
+/* --- Contact form: bottom-border focus style --- */
+.form-control {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+.form-control:focus {
+  border-bottom-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* --- Submit button: gradient fill --- */
+.submit-btn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+  letter-spacing: 2px;
+}
+
+.submit-btn:hover {
+  box-shadow: var(--neon-shadow), 0 4px 15px rgba(var(--primary-color-rgb), 0.4);
+  transform: translateY(-3px);
+}
+
+/* --- Sticky nav pill: frosted glass --- */
+#header.sticky-header .nav-menu {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(4, 4, 4, 0.75) !important;
+}
+
+/* --- Nav link active indicator dot --- */
+.nav-menu .active > a {
+  color: var(--primary-color) !important;
+}
+
+/* --- Container: subtle inner-top glow border --- */
+.container {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* --- Light mode card adjustments --- */
+body.light-mode .count-box,
+body.light-mode .interest-box,
+body.light-mode .certification-box,
+body.light-mode .project-box,
+body.light-mode .contact-info-box,
+body.light-mode .contact-form-container {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .count-box .count {
+  background: linear-gradient(135deg, #333 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light-mode .section-subtitle {
+  background: linear-gradient(135deg, var(--dark-text-color) 60%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light-mode #header h1 a {
+  background: linear-gradient(135deg, #111 40%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Hero header: diagonal gradient overlay --- */
+#header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(4, 4, 4, 0.85) 0%,
+    rgba(4, 4, 4, 0.55) 50%,
+    rgba(var(--primary-color-rgb), 0.08) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+#header .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Loading counter: gradient text --- */
+.counter {
+  background: linear-gradient(135deg, #fff 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Scrollbar styling --- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
