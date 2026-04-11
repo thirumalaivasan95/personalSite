@@ -15,9 +15,11 @@ const ContactForm = (() => {
   'use strict';
 
   // ── Configuration ─────────────────────────────────────────────────────────
-  const WEB3FORMS_KEY  = 'cbd3b72c-3835-4c5b-bb21-150e39c00681';
+  // Key is loaded from assets/js/config.js (gitignored).
+  // For GitHub Pages deployment, it is injected via the WEB3FORMS_KEY GitHub Secret.
+  const WEB3FORMS_KEY  = (window.SITE_CONFIG && window.SITE_CONFIG.web3formsKey) || '';
   const WEB3FORMS_URL  = 'https://api.web3forms.com/submit';
-  const isConfigured   = () => WEB3FORMS_KEY !== 'YOUR_WEB3FORMS_ACCESS_KEY';
+  const isConfigured   = () => WEB3FORMS_KEY !== '' && WEB3FORMS_KEY !== 'YOUR_WEB3FORMS_ACCESS_KEY';
 
   // ── Private state ─────────────────────────────────────────────────────────
   let form, submitBtn, loadingEl, errorEl, successEl;
