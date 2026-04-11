@@ -2,8 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [master]   # runs every time you push to master
-  workflow_dispatch:      # lets you trigger it manually from the Actions tab
+    branches: [master]   # runs on every push to master
+  workflow_dispatch:      # allows manual trigger from the Actions tab
 
 permissions:
   contents: read
@@ -25,15 +25,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Create config.js at build time using the GitHub Secret.
-      # The file is gitignored, so it never lives in the repo.
+      # config.js is gitignored so it never lives in the repo.
+      # We create it here at build time from the GitHub Secret.
+      # Using env: keeps the secret out of the shell command log.
       - name: Inject API keys into config.js
+        env:
+          WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
         run: |
-          cat > assets/js/config.js <<EOF
-          window.SITE_CONFIG = {
-            web3formsKey: '${{ secrets.WEB3FORMS_KEY }}'
-          };
-          EOF
+          printf 'window.SITE_CONFIG = {\n  web3formsKey: "%s"\n};\n' "$WEB3FORMS_KEY" > assets/js/config.js
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
@@ -41,7 +40,7 @@ jobs:
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'   # uploads the entire repo root as the site
+          path: '.'
 
       - name: Deploy to GitHub Pages
         id: deploy
