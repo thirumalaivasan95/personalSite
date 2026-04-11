@@ -4,7 +4,11 @@ A modern, interactive developer portfolio with particle animations, smooth scrol
 
 ## Live Preview
 
+<<<<<<< HEAD
 **[https://thirumalaivasan95.github.io/personalSite/](https://thirumalaivasan95.github.io/personalSite/)**
+=======
+![Portfolio Preview](https://thirumalaivasan95.github.io/personalSite/)
+>>>>>>> b42ce35533827d569739109b3b71817072e3487f
 
 ## Features
 
@@ -120,5 +124,26 @@ Chrome · Firefox · Safari · Edge · Opera (latest versions)
 
 ## Author
 
+<<<<<<< HEAD
 **Thirumalai Vasan**
 [GitHub](https://github.com/thirumalaivasan95) · [LinkedIn](https://www.linkedin.com/in/thirumalaivasan95/) · [thirumalaithiruvasan@gmail.com](mailto:thirumalaithiruvasan@gmail.com)
+=======
+- **Design & Development**: [Thirumalai Vasan](https://github.com/thirumalaivasan95)
+- **Libraries**:
+  - [GSAP](https://greensock.com/gsap/)
+  - [Locomotive Scroll](https://locomotivemtl.github.io/locomotive-scroll/)
+  - [Typed.js](https://github.com/mattboldt/typed.js/)
+  - [Particles.js](https://github.com/VincentGarreau/particles.js/)
+  - [Bootstrap](https://getbootstrap.com/)
+  - [Font Awesome](https://fontawesome.com/)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Thirumalai Vasan - [thirumalaithiruvasan@gmail.com](mailto:thirumalaithiruvasan@gmail.com)
+
+Project Link: [https://github.com/thirumalaivasan95/personalSite](https://github.com/thirumalaivasan95/personalSite)
+>>>>>>> b42ce35533827d569739109b3b71817072e3487f
