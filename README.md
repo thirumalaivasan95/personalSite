@@ -1,114 +1,124 @@
-# Thirumalai Vasan - Portfolio Website
+# Thirumalai Vasan — Portfolio
 
-A stunning, interactive portfolio website featuring modern animations and a sleek dark theme design.
+A modern, interactive developer portfolio with particle animations, smooth scroll effects, dark/light theming, and a working contact form.
 
-## Preview
+## Live Preview
 
-![Portfolio Preview](assets/img/preview.jpg)
+**[https://thirumalaivasan95.github.io/personalSite/](https://thirumalaivasan95.github.io/personalSite/)**
 
 ## Features
 
-- **Particle Background Animation** - Dynamic particles that respond to cursor movement
-- **Custom Cursor Effects** - Enhanced cursor with text hints on hover
-- **Smooth Scroll Animations** - Parallax scrolling effects with Locomotive Scroll
-- **GSAP Animations** - Advanced animations with timelines and scroll triggers
-- **Interactive Timeline** - Dynamic expandable work history
-- **Project Filtering** - Interactive filtering with smooth transitions
-- **Dark/Light Theme Toggle** - Switch between dark and light modes
-- **Typing Animation** - Dynamic role display with typing effect
-- **Form Animations** - Interactive contact form with floating labels
-- **Responsive Design** - Fully responsive on all devices
+- **Particle Background** — Interactive particles that react to cursor movement
+- **Custom Cursor** — Context-aware cursor with hover text hints
+- **GSAP Animations** — Scroll-triggered timelines and entrance effects
+- **Locomotive Scroll** — Smooth parallax scrolling throughout
+- **Typing Effect** — Animated role display via Typed.js
+- **Dark / Light Theme** — Toggle with preference saved to localStorage
+- **Project Filtering** — Live filter with smooth Isotope-style transitions
+- **Project Modals** — Detailed project overlays without page navigation
+- **Interactive Timeline** — Expandable work and education history
+- **Contact Form** — Floating-label form delivered to Gmail via Web3Forms
+- **Responsive** — Fully adaptive across mobile, tablet and desktop
 
-## Technologies Used
+## Tech Stack
 
-- **HTML5, CSS3, JavaScript** - Core web technologies
-- **GSAP** - For advanced animations and transitions
-- **Locomotive Scroll** - For smooth scrolling and parallax effects
-- **Splitting.js** - For text animations
-- **Typed.js** - For the typewriter effect
-- **Particles.js** - For the interactive particle background
-- **Bootstrap 5** - For responsive grid layout
-- **Font Awesome** - For icons
-- **PHP** - For contact form processing
-
-## Getting Started
-
-### Prerequisites
-
-- Web server with PHP support (for contact form)
-- Basic knowledge of HTML/CSS/JS for customization
-
-### Installation
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/yourname/portfolio-website.git
-   ```
-
-2. Replace placeholder images with your own:
-   - Profile photo: `assets/img/me.jpg`
-   - Background image: `assets/img/bg.jpg`
-   - Project thumbnails: `assets/img/projects/`
-
-3. Update personal information in `index.html`
-
-4. Update your email in `forms/contact.php`
-
-5. Upload to your web server
-
-### Customization
-
-- **Colors**: Edit the CSS variables in `assets/css/style.css` to change the color scheme
-- **Content**: Update text and sections in `index.html`
-- **Animations**: Modify animation parameters in `assets/js/main.js`
-- **Particles**: Adjust particle settings in `assets/js/particles.json`
+| Layer | Library / Tool |
+|---|---|
+| Animations | [GSAP](https://greensock.com/gsap/) + ScrollTrigger |
+| Smooth scroll | [Locomotive Scroll](https://locomotivemtl.github.io/locomotive-scroll/) |
+| Typing effect | [Typed.js](https://github.com/mattboldt/typed.js/) |
+| Particles | [Particles.js](https://github.com/VincentGarreau/particles.js/) |
+| Text split | [Splitting.js](https://splitting.js.org/) |
+| Layout | [Bootstrap 5](https://getbootstrap.com/) |
+| Icons | [Font Awesome 5](https://fontawesome.com/) |
+| Contact | [Web3Forms](https://web3forms.com/) |
 
 ## File Structure
 
 ```
-portfolio-website/
-├── index.html              # Main HTML file
+personalSite/
+├── index.html                    # Single-page application entry point
 ├── assets/
 │   ├── css/
-│   │   └── style.css       # Main stylesheet
+│   │   └── style.css             # All styles and theme variables
 │   ├── js/
-│   │   ├── main.js         # Main JavaScript file
-│   │   └── particles.json  # Particles configuration
-│   └── img/                # Images folder
+│   │   ├── main.js               # Core animations, navigation, UI
+│   │   ├── contact.js            # Contact form module (Web3Forms)
+│   │   ├── config.js             # API keys — gitignored, never committed
+│   │   ├── config.example.js     # Config template — safe to commit
+│   │   └── particles.json        # Particle system configuration
+│   ├── img/                      # Images (profile, background, projects)
+│   └── pdf/
+│       └── Resume.pdf            # Downloadable resume
 ├── forms/
-│   └── contact.php         # PHP contact form handler
-└── DEPLOYMENT.md           # Deployment guide
+│   └── contact.php               # PHP fallback (if server supports it)
+├── .github/
+│   └── workflows/
+│       └── deploy.yml            # GitHub Actions — builds & deploys to Pages
+├── .gitignore
+└── DEPLOYMENT.md
 ```
 
-## Deployment
+## Local Setup
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
+```bash
+# Clone the repo
+git clone https://github.com/thirumalaivasan95/personalSite.git
+cd personalSite
+
+# Set up your API key config
+cp assets/js/config.example.js assets/js/config.js
+# Edit config.js and paste your Web3Forms key
+```
+
+Then open `index.html` in a browser — no build step needed.
+
+## Contact Form Setup
+
+The form delivers messages straight to Gmail via [Web3Forms](https://web3forms.com/) (free, 250 submissions/month).
+
+1. Go to [web3forms.com](https://web3forms.com) and enter your Gmail address
+2. Copy the access key from the email you receive
+3. Paste it into `assets/js/config.js`:
+   ```js
+   window.SITE_CONFIG = {
+     web3formsKey: 'your-actual-key-here'
+   };
+   ```
+
+`config.js` is listed in `.gitignore` — your key is never committed to the repo.
+
+## Deployment (GitHub Pages)
+
+The included GitHub Actions workflow builds and deploys automatically on every push to `master`.
+
+**One-time setup:**
+
+1. Add your key as a GitHub Secret:
+   - Repo → **Settings** → **Secrets and variables** → **Actions**
+   - New secret: `WEB3FORMS_KEY` = your key
+
+2. Enable Pages via Actions:
+   - Repo → **Settings** → **Pages** → Source: **GitHub Actions**
+
+3. Push to `master` — the workflow handles the rest.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full details.
+
+## Customization
+
+| What | Where |
+|---|---|
+| Color scheme | CSS variables at the top of `assets/css/style.css` |
+| Content & sections | `index.html` |
+| Animation timing | `assets/js/main.js` |
+| Particle behaviour | `assets/js/particles.json` |
 
 ## Browser Support
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Opera (latest)
+Chrome · Firefox · Safari · Edge · Opera (latest versions)
 
-## Credits
+## Author
 
-- **Design & Development**: [Thirumalai Vasan](https://github.com/thirumalaivasan95)
-- **Libraries**:
-  - [GSAP](https://greensock.com/gsap/)
-  - [Locomotive Scroll](https://locomotivemtl.github.io/locomotive-scroll/)
-  - [Typed.js](https://github.com/mattboldt/typed.js/)
-  - [Particles.js](https://github.com/VincentGarreau/particles.js/)
-  - [Bootstrap](https://getbootstrap.com/)
-  - [Font Awesome](https://fontawesome.com/)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-Thirumalai Vasan - [thirumalaithiruvasan@gmail.com](mailto:thirumalaithiruvasan@gmail.com)
-
-Project Link: [https://github.com/thirumalaivasan95/personalSite](https://github.com/thirumalaivasan95/personalSite)
+**Thirumalai Vasan**
+[GitHub](https://github.com/thirumalaivasan95) · [LinkedIn](https://www.linkedin.com/in/thirumalaivasan95/) · [thirumalaithiruvasan@gmail.com](mailto:thirumalaithiruvasan@gmail.com)
