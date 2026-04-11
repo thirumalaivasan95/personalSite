@@ -4,7 +4,7 @@ A stunning, interactive portfolio website featuring modern animations and a slee
 
 ## Preview
 
-![Portfolio Preview]([assets/img/preview.jpg](https://thirumalaivasan95.github.io/personalSite/))
+![Portfolio Preview](https://thirumalaivasan95.github.io/personalSite/)
 
 ## Features
 
