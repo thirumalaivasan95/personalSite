@@ -89,13 +89,15 @@ const ContactForm = (() => {
 
     try {
       const payload = new FormData();
-      payload.append('access_key', WEB3FORMS_KEY);
-      payload.append('name',       fields.name);
-      payload.append('email',      fields.email);
-      payload.append('subject',    `Portfolio Contact: ${fields.subject}`);
-      payload.append('message',    fields.message);
-      // Honeypot spam protection
-      payload.append('botcheck',   '');
+      payload.append('access_key',   WEB3FORMS_KEY);
+      payload.append('from_name',    'Portfolio Contact Form');
+      payload.append('name',         fields.name);
+      payload.append('email',        fields.email);
+      payload.append('replyto',      fields.email);
+      payload.append('subject',      `Portfolio Contact: ${fields.subject}`);
+      payload.append('message',      fields.message);
+      // Honeypot — must stay empty; bots fill it and get rejected
+      payload.append('botcheck',     '');
 
       const res = await fetch(WEB3FORMS_URL, { method: 'POST', body: payload });
       const json = await res.json();
