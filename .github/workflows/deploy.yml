@@ -30,9 +30,9 @@ jobs:
       # Using env: keeps the secret out of the shell command log.
       - name: Inject API keys into config.js
         env:
-          WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
+          FORMSPREE_ID: ${{ secrets.FORMSPREE_ID }}
         run: |
-          printf 'window.SITE_CONFIG = {\n  web3formsKey: "%s"\n};\n' "$WEB3FORMS_KEY" > assets/js/config.js
+          printf 'window.SITE_CONFIG = {\n  formspreeId: "%s"\n};\n' "$FORMSPREE_ID" > assets/js/config.js
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v4

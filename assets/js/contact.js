@@ -1,13 +1,14 @@
 /**
- * Contact Form Module
+ * Contact Form Module — Formspree delivery
  *
- * Sends messages to thirumalaithiruvasan@gmail.com via Web3Forms.
- *
- * ── One-time setup (2 minutes) ───────────────────────────────────────────────
- *  1. Open https://web3forms.com in your browser
- *  2. Enter "thirumalaithiruvasan@gmail.com" and click "Create Access Key"
- *  3. Check your Gmail inbox for the key (subject: "Your Web3Forms Access Key")
- *  4. Paste the key below, replacing YOUR_WEB3FORMS_ACCESS_KEY
+ * ── One-time setup (~3 minutes) ──────────────────────────────────────────────
+ *  1. Go to https://formspree.io and click "Get Started Free"
+ *  2. Sign up with thirumalaithiruvasan@gmail.com
+ *  3. Click "+ New Form", name it "Portfolio Contact"
+ *  4. Copy your Form ID — it looks like: xpzvwkab
+ *  5. Paste it into assets/js/config.js  →  formspreeId: 'xpzvwkab'
+ *  6. Also add it as a GitHub Secret named FORMSPREE_ID for deployment
+ *  7. Verify your email when Formspree sends you a confirmation
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -15,11 +16,11 @@ const ContactForm = (() => {
   'use strict';
 
   // ── Configuration ─────────────────────────────────────────────────────────
-  // Key is loaded from assets/js/config.js (gitignored).
-  // For GitHub Pages deployment, it is injected via the WEB3FORMS_KEY GitHub Secret.
-  const WEB3FORMS_KEY  = (window.SITE_CONFIG && window.SITE_CONFIG.web3formsKey) || '';
-  const WEB3FORMS_URL  = 'https://api.web3forms.com/submit';
-  const isConfigured   = () => WEB3FORMS_KEY !== '' && WEB3FORMS_KEY !== 'YOUR_WEB3FORMS_ACCESS_KEY';
+  // Loaded from assets/js/config.js (gitignored).
+  // On GitHub Pages it is injected at build time via the FORMSPREE_ID secret.
+  const FORM_ID    = (window.SITE_CONFIG && window.SITE_CONFIG.formspreeId) || '';
+  const ENDPOINT   = () => `https://formspree.io/f/${FORM_ID}`;
+  const isReady    = () => FORM_ID !== '' && FORM_ID !== 'YOUR_FORMSPREE_ID';
 
   // ── Private state ─────────────────────────────────────────────────────────
   let form, submitBtn, loadingEl, errorEl, successEl;
@@ -39,8 +40,6 @@ const ContactForm = (() => {
   }
 
   // ── Floating label effect ─────────────────────────────────────────────────
-  // has-value is applied on every keystroke so the label moves the moment
-  // the user starts typing (not just when they leave the field).
   function initFloatingLabels() {
     form.querySelectorAll('input, textarea').forEach(input => {
       const sync = () =>
@@ -48,7 +47,7 @@ const ContactForm = (() => {
           ? input.classList.add('has-value')
           : input.classList.remove('has-value');
 
-      sync(); // preserve autofill on page load
+      sync();
       input.addEventListener('input',  sync);
       input.addEventListener('focus',  () => input.classList.add('focused'));
       input.addEventListener('blur',   () => { input.classList.remove('focused'); sync(); });
@@ -66,7 +65,6 @@ const ContactForm = (() => {
       message: getVal('message'),
     };
 
-    // Client-side validation
     if (Object.values(fields).some(v => !v)) {
       showStatus('Please fill in all fields.', 'error');
       return;
@@ -75,8 +73,7 @@ const ContactForm = (() => {
       showStatus('Please enter a valid email address.', 'error');
       return;
     }
-
-    if (!isConfigured()) {
+    if (!isReady()) {
       showStatus(
         'Contact form not configured yet. Please email me at thirumalaithiruvasan@gmail.com',
         'error'
@@ -88,25 +85,21 @@ const ContactForm = (() => {
     setSubmitting(true);
 
     try {
-      const payload = new FormData();
-      payload.append('access_key',   WEB3FORMS_KEY);
-      payload.append('from_name',    'Portfolio Contact Form');
-      payload.append('name',         fields.name);
-      payload.append('email',        fields.email);
-      payload.append('replyto',      fields.email);
-      payload.append('subject',      `Portfolio Contact: ${fields.subject}`);
-      payload.append('message',      fields.message);
-      // Honeypot — must stay empty; bots fill it and get rejected
-      payload.append('botcheck',     '');
+      const res = await fetch(ENDPOINT(), {
+        method:  'POST',
+        headers: { 'Accept': 'application/json' },
+        body:    buildPayload(fields),
+      });
 
-      const res = await fetch(WEB3FORMS_URL, { method: 'POST', body: payload });
       const json = await res.json();
 
-      if (json.success) {
+      if (res.ok && json.ok) {
         resetForm();
         showStatus("Message sent! I\u2019ll get back to you soon. \u2713", 'success');
       } else {
-        throw new Error(json.message ?? 'Submission rejected');
+        // Surface Formspree's own error message when available
+        const msg = json.error || (json.errors && json.errors.map(e => e.message).join(', '));
+        throw new Error(msg || `HTTP ${res.status}`);
       }
     } catch (err) {
       console.error('[ContactForm]', err);
@@ -117,6 +110,18 @@ const ContactForm = (() => {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // ── Payload builder ───────────────────────────────────────────────────────
+  function buildPayload({ name, email, subject, message }) {
+    const fd = new FormData();
+    fd.append('name',      name);
+    fd.append('email',     email);
+    fd.append('_replyto',  email);
+    fd.append('_subject',  `Portfolio Contact: ${subject}`);
+    fd.append('message',   message);
+    fd.append('_gotcha',   '');   // honeypot — leave blank; bots fill it and get blocked
+    return fd;
   }
 
   // ── UI helpers ────────────────────────────────────────────────────────────
