@@ -1060,15 +1060,27 @@ body.light-mode .section-subtitle {
   border: none;
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.1);
-  color: var(--text-color);
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  caret-color: var(--primary-color);
   font-size: 1rem;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--primary-color);
   background: rgba(255, 255, 255, 0.15);
+}
+
+/* Override browser autofill colours — dark mode */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(40, 40, 40, 0.95) inset;
+  caret-color: var(--primary-color);
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .form-label {
@@ -1082,6 +1094,7 @@ body.light-mode .section-subtitle {
 }
 
 .form-control:focus ~ .form-label,
+.form-control.has-value ~ .form-label,
 .form-control:valid ~ .form-label {
   top: -10px;
   left: 10px;
@@ -1308,21 +1321,35 @@ body.light-mode .project-links a {
 }
 
 body.light-mode .form-control {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--dark-text-color);
+  background: rgba(0, 0, 0, 0.06);
+  color: #333333;
+  -webkit-text-fill-color: #333333;
+  caret-color: var(--primary-color);
 }
 
 body.light-mode .form-control:focus {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.09);
+}
+
+/* Override browser autofill colours — light mode */
+body.light-mode .form-control:-webkit-autofill,
+body.light-mode .form-control:-webkit-autofill:hover,
+body.light-mode .form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: #333333;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(230, 230, 230, 0.95) inset;
+  caret-color: var(--primary-color);
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 body.light-mode .form-label {
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 body.light-mode .form-control:focus ~ .form-label,
+body.light-mode .form-control.has-value ~ .form-label,
 body.light-mode .form-control:valid ~ .form-label {
   background: var(--light-content-bg);
+  color: var(--primary-color);
 }
 
 body.light-mode .modal-content {
@@ -1779,6 +1806,14 @@ body.light-mode .section-subtitle {
 .form-control:focus {
   border-bottom-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+body.light-mode .form-control {
+  border-bottom-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light-mode .form-control:focus {
+  border-bottom-color: var(--primary-color);
 }
 
 /* --- Submit button: gradient fill --- */

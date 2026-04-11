@@ -1,58 +1,117 @@
 <?php
-// Set headers to handle AJAX requests
+/**
+ * Contact Form Handler
+ *
+ * Falls back to PHP mail() when EmailJS is not yet configured.
+ * For reliable Gmail delivery, configure EmailJS in assets/js/contact.js instead.
+ */
+
 header('Content-Type: application/json');
 
-// Define receiving email
-$receiving_email_address = 'thirumalaithiruvasan@gmail.com';
+// ── Configuration ─────────────────────────────────────────────────────────────
+const RECEIVING_EMAIL = 'thirumalaithiruvasan@gmail.com';
+const SITE_NAME       = 'Thirumalai Vasan Portfolio';
 
-// Basic input validation
-$name = isset($_POST['name']) ? trim($_POST['name']) : '';
-$email = isset($_POST['email']) ? trim($_POST['email']) : '';
-$subject = isset($_POST['subject']) ? trim($_POST['subject']) : '';
-$message = isset($_POST['message']) ? trim($_POST['message']) : '';
-
-// Check for empty fields
-if (empty($name) || empty($email) || empty($subject) || empty($message)) {
-    echo json_encode(['success' => false, 'message' => 'Please fill in all required fields.']);
+// ── Helper ────────────────────────────────────────────────────────────────────
+function respond(bool $success, string $message): void
+{
+    echo json_encode(['success' => $success, 'message' => $message]);
     exit;
 }
 
-// Validate email
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['success' => false, 'message' => 'Please enter a valid email address.']);
-    exit;
+// ── Method guard ──────────────────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    respond(false, 'Method not allowed.');
 }
 
-// Basic security - sanitize inputs
-$name = htmlspecialchars($name);
-$email = filter_var($email, FILTER_SANITIZE_EMAIL);
-$subject = htmlspecialchars($subject);
-$message = htmlspecialchars($message);
+// ── Collect & sanitise input ──────────────────────────────────────────────────
+$senderName  = trim(strip_tags($_POST['name']    ?? ''));
+$senderEmail = trim($_POST['email']   ?? '');
+$subject     = trim(strip_tags($_POST['subject'] ?? ''));
+$messageText = trim(strip_tags($_POST['message'] ?? ''));
 
-try {
-    // Create email headers
-    $headers = "From: $email\r\n";
-    $headers .= "Reply-To: $email\r\n";
-    $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-    
-    // Compose email message
-    $email_message = "<h3>Contact Form Message</h3>";
-    $email_message .= "<p><strong>Name:</strong> $name</p>";
-    $email_message .= "<p><strong>Email:</strong> $email</p>";
-    $email_message .= "<p><strong>Subject:</strong> $subject</p>";
-    $email_message .= "<p><strong>Message:</strong></p>";
-    $email_message .= "<p>" . nl2br($message) . "</p>";
-    
-    // Send email
-    $mail_result = mail($receiving_email_address, "Contact Form: $subject", $email_message, $headers);
-    
-    if ($mail_result) {
-        echo json_encode(['success' => true, 'message' => 'Your message has been sent. Thank you!']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Unable to send email. Please try again later.']);
+// ── Validate ──────────────────────────────────────────────────────────────────
+if (!$senderName || !$senderEmail || !$subject || !$messageText) {
+    respond(false, 'Please fill in all required fields.');
+}
+if (!filter_var($senderEmail, FILTER_VALIDATE_EMAIL)) {
+    respond(false, 'Please enter a valid email address.');
+}
+
+// Prevent SMTP header injection via newline characters
+foreach ([$senderName, $senderEmail, $subject] as $field) {
+    if (preg_match('/[\r\n]/', $field)) {
+        respond(false, 'Invalid characters detected in input.');
     }
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
 }
-?>
+
+// Safe values for use in HTML email
+$senderEmail = filter_var($senderEmail, FILTER_SANITIZE_EMAIL);
+$safeSubject = htmlspecialchars($subject,     ENT_QUOTES, 'UTF-8');
+$safeName    = htmlspecialchars($senderName,  ENT_QUOTES, 'UTF-8');
+$safeMessage = nl2br(htmlspecialchars($messageText, ENT_QUOTES, 'UTF-8'));
+
+// ── Build headers ─────────────────────────────────────────────────────────────
+// Use a no-reply sender so the From header passes SPF/DKIM on shared hosting.
+// The visitor's address goes into Reply-To so you can reply with one click.
+$host        = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$fromAddress = "noreply@{$host}";
+
+$headers  = "MIME-Version: 1.0\r\n";
+$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+$headers .= "From: " . SITE_NAME . " <{$fromAddress}>\r\n";
+$headers .= "Reply-To: {$safeName} <{$senderEmail}>\r\n";
+$headers .= "X-Mailer: PHP/" . PHP_VERSION . "\r\n";
+
+// ── Build HTML email body ─────────────────────────────────────────────────────
+$emailBody = <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="font-family:Arial,sans-serif;color:#333;max-width:600px;margin:auto;padding:24px">
+
+  <h2 style="color:#18d26e;border-bottom:2px solid #18d26e;padding-bottom:8px;margin-top:0">
+    New Message from Portfolio Contact Form
+  </h2>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+    <tr>
+      <td style="padding:10px 12px;font-weight:bold;color:#555;width:80px;border-bottom:1px solid #eee">Name</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee">{$safeName}</td>
+    </tr>
+    <tr style="background:#f9f9f9">
+      <td style="padding:10px 12px;font-weight:bold;color:#555;border-bottom:1px solid #eee">Email</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eee">
+        <a href="mailto:{$senderEmail}" style="color:#18d26e">{$senderEmail}</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:10px 12px;font-weight:bold;color:#555">Subject</td>
+      <td style="padding:10px 12px">{$safeSubject}</td>
+    </tr>
+  </table>
+
+  <h3 style="color:#555;margin-bottom:8px">Message</h3>
+  <div style="background:#f5f5f5;padding:16px;border-radius:6px;line-height:1.7;white-space:pre-wrap">
+    {$safeMessage}
+  </div>
+
+  <hr style="margin-top:28px;border:none;border-top:1px solid #eee">
+  <p style="color:#aaa;font-size:12px;margin-bottom:0">
+    Sent via the contact form on <strong>Thirumalai Vasan&rsquo;s Portfolio</strong>.
+    Hit <em>Reply</em> to respond directly to {$safeName}.
+  </p>
+
+</body>
+</html>
+HTML;
+
+// ── Send ──────────────────────────────────────────────────────────────────────
+$mailSubject = "Portfolio Contact: {$safeSubject}";
+$sent = mail(RECEIVING_EMAIL, $mailSubject, $emailBody, $headers);
+
+if ($sent) {
+    respond(true, 'Your message has been sent. Thank you!');
+} else {
+    respond(false, 'Failed to send email. Please try again later or email me directly.');
+}
