@@ -4,7 +4,7 @@ A modern, interactive developer portfolio with particle animations, smooth scrol
 
 ## Live Preview
 
-**[https://thirumalaivasan95.github.io/personalSite/](https://thirumalaivasan95.github.io/personalSite/)**
+**[Site Link](https://thirumalaivasan95.github.io/personalSite/)**
 
 ## Features
 
